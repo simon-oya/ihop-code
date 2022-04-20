@@ -60,11 +60,7 @@ def ikk_attack(obs, aux, exp_params):
     Vobs = compute_Vobs(obs['trace_type'], token_info, ndocs)
     Vexp = get_Vexp(aux, exp_params.def_params, naive_flag)
 
-    if 'known_queries' in obs and len(obs['known_queries']) > 0:
-        aux = list(obs['known_queries'].items())
-        known_tokens, known_keywords = zip(*aux)
-    else:
-        known_tokens, known_keywords = [], []
+    known_tokens, known_keywords = [], []  # In the IHOP paper there are no ground-truth queries
     remaining_tokens = [j for j in range(ntok) if j not in known_tokens]
     remaining_keywords = [i for i in range(nkw) if i not in known_keywords]
 

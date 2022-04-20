@@ -104,23 +104,6 @@ def build_frequencies_from_file(dataset_name, chosen_kw_indices, keywords, aux_d
     return freq_adv, freq_cli, freq_real
 
 
-def update_ground_truth_information(full_data_adv, real_and_dummy_queries, gen_params):
-    if 'ground_truth_queries' in full_data_adv:
-        raise ValueError("'full_data_adv' already has 'ground_truth_queries'!")
-
-    known_queries = gen_params['known_queries']
-    if known_queries > 0:
-        distinct_queried_keywords = list(set(real_and_dummy_queries))
-        real_and_dummy_queries = list(real_and_dummy_queries)
-        chosen_ground_truth_keywords = np.random.permutation(distinct_queried_keywords)[:min(known_queries, len(distinct_queried_keywords))]
-        ground_truth_info = []  # List of (query_position, ground_truth_keyword_id)
-        for chosen_keyword in chosen_ground_truth_keywords:
-            idx = real_and_dummy_queries.index(chosen_keyword)  # First occurrence of this keyword query
-            ground_truth_info.append((idx, chosen_keyword))
-        full_data_adv['ground_truth_queries'] = ground_truth_info
-    return full_data_adv
-
-
 def generate_train_test_data(gen_params):
     nkw = gen_params['nkw']
     dataset_name = gen_params['dataset']
@@ -228,9 +211,6 @@ def run_experiment(exp_param, seed, debug_mode=False):
 
     observations, bw_overhead, real_and_dummy_queries = generate_observations(full_data_client, exp_param.def_params, real_queries)
     v_print("Applied defense ({:.1f} secs)".format(time.time() - t0))
-
-    full_data_adv = update_ground_truth_information(full_data_adv, real_and_dummy_queries, exp_param.gen_params)
-    v_print("Updated ground-truth information ({:.1f} secs)".format(time.time() - t0))
 
     keyword_predictions_for_each_query = run_attack(exp_param.att_params['name'], obs=observations, aux=full_data_adv, exp_params=exp_param)
     v_print("Done running attack ({:.1f} secs)".format(time.time() - t0))
